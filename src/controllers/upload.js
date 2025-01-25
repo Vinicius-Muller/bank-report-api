@@ -1,11 +1,6 @@
-const express = require("express");
-const multer = require("multer");
 const ofx = require("ofx-js");
 
-const app = express();
-const upload = multer({ storage: multer.memoryStorage() });
-
-app.post("/upload", upload.single("file"), async (req, res) => {
+const getData = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: "Nenhum arquivo enviado." });
@@ -17,22 +12,21 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     const transactions =
       parsedData.OFX.BANKMSGSRSV1.STMTTRNRS.STMTRS.BANKTRANLIST.STMTTRN;
 
-    const { receitas, despesas } = categorizeTransactions(transactions);
+    const { income, outcome } = categorizeTransactions(transactions);
 
     res.status(200).json({
-      message: "Arquivo OFX processado com sucesso!",
-      receitas,
-      despesas,
+      income,
+      outcome,
     });
   } catch (error) {
     console.error("Erro ao processar o arquivo OFX:", error);
     res.status(500).json({ error: "Erro ao processar o arquivo OFX" });
   }
-});
+};
 
 const categorizeTransactions = (transactions) => {
-  const receitas = [];
-  const despesas = [];
+  const income = [];
+  const outcome = [];
 
   transactions.forEach((transaction) => {
     const value = parseFloat(transaction.TRNAMT);
@@ -43,16 +37,15 @@ const categorizeTransactions = (transactions) => {
     };
 
     if (value >= 0) {
-      receitas.push(category);
+      income.push(category);
     } else {
-      despesas.push(category);
+      outcome.push(category);
     }
   });
 
-  return { receitas, despesas };
+  return { income, outcome };
 };
 
-const PORT = 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-});
+module.exports = {
+  getData,
+};
