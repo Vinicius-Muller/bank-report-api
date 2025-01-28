@@ -1,7 +1,8 @@
 const { getUsers } = require("../db/queries/users.js");
 
-const signIn = async () => {
-  await getUsers();
+const createUsers = async (_, res) => {
+  const result = await getUsers();
+  res.json(result);
 };
 
-module.exports = { signIn };
+module.exports = { createUsers };

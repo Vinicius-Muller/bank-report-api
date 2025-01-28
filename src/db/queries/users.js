@@ -1,33 +1,68 @@
 const pool = require("../index");
 
 const getUsers = async () => {
-  const query = "SELECT * FROM users";
-  const result = await pool.query(query);
-  return result.rows;
+  try {
+    const result = await pool.query("SELECT * FROM users");
+    return result.rows;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getUsersByEmail = async (email) => {
+  try {
+    const result = await pool.query(
+      `SELECT name, email, category_id, created_at, updated_at FROM users WHERE email = '${email}'`
+    );
+
+    return result.rows;
+  } catch (error) {
+    throw error;
+  }
 };
 
 const getUserById = async (id) => {
-  const query = "SELECT * FROM users WHERE id = $1";
-  const result = await pool.query(query, [id]);
-  return result.rows[0];
+  try {
+    const result = await pool.query(`SELECT * FROM users WHERE id = '${id}'`);
+    return result.rows[0];
+  } catch (error) {
+    throw error;
+  }
 };
 
-const createUser = async (name, email) => {
-  const query = "INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *";
-  const result = await pool.query(query, [name, email]);
-  return result.rows[0];
+const createUser = async (name, email, password, category_id) => {
+  try {
+    const result = await pool.query(`
+    INSERT INTO users 
+    (name, email, password, category_id) VALUES 
+    (${name}, ${email}, ${password}, ${category_id});`);
+    return result.rows[0];
+  } catch (error) {
+    throw error;
+  }
 };
 
-const updateUser = async (id, name, email) => {
-  const query =
-    "UPDATE users SET name = $1, email = $2 WHERE id = $3 RETURNING *";
-  const result = await pool.query(query, [name, email, id]);
-  return result.rows[0];
+const updateUser = async (id, name, email, category_id) => {
+  try {
+    const result = await pool.query(`
+      UPDATE users SET 
+      name = ${name}, 
+      email = ${email}, 
+      category_id = ${category_id} 
+      WHERE id = ${id}
+    `);
+    return result.rows[0];
+  } catch (error) {
+    throw error;
+  }
 };
 
 const deleteUser = async (id) => {
-  const query = "DELETE FROM users WHERE id = $1";
-  await pool.query(query, [id]);
+  try {
+    await pool.query(`DELETE FROM users WHERE id = ${id}`);
+  } catch (error) {
+    throw error;
+  }
 };
 
 module.exports = {
@@ -36,4 +71,5 @@ module.exports = {
   createUser,
   updateUser,
   deleteUser,
+  getUsersByEmail,
 };
