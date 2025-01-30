@@ -1,6 +1,7 @@
 const { getUsersByEmail } = require("../db/queries/users.js");
 const { matchPassword } = require("../helpers/encription.js");
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 const signIn = async (req, res) => {
   try {
@@ -12,9 +13,14 @@ const signIn = async (req, res) => {
       return res.status(401).json({ message: "email incorreto" });
     }
 
-    const signedUser = await Promise.all(
-      users.find(async (user) => await matchPassword(password, user.password))
-    );
+    let signedUser = null;
+    for (const user of users) {
+      const isMatch = await matchPassword(password, user.password);
+      if (isMatch) {
+        signedUser = user;
+        break;
+      }
+    }
 
     if (!signedUser) {
       return res.status(401).json({ message: "Senha inválida" });
@@ -31,7 +37,8 @@ const signIn = async (req, res) => {
       access_token: accessToken,
     });
   } catch (error) {
-    res.status(500).json({ message: "Erro interno durante o login" });
+    console.log(error);
+    res.status(500).json({ message: error });
   }
 };
 

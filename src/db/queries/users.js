@@ -1,8 +1,51 @@
+const { encryptPassword } = require("../../helpers/encription");
 const pool = require("../index");
 
-const getUsers = async () => {
+const createUsersDto = async (fields) => {
+  const { name, email, password, categories } = fields;
+  const hashPassword = await encryptPassword(password);
+
+  if (categories) {
+    return `
+      INSERT INTO users 
+      (name, email, password) VALUES 
+      ('${name}', '${email}', '${hashPassword}', '${categories.join(",")}')
+    `;
+  }
+
+  return `
+    INSERT INTO users 
+    (name, email, password) VALUES 
+    ('${name}', '${email}', '${hashPassword}')
+  `;
+};
+
+const updateUsersDto = (fields) => {
+  const { id, name, email, categories } = fields;
+
+  if (categories) {
+    return `
+      UPDATE users SET 
+      name = '${name}', 
+      email = '${email}', 
+      category_id = '${categories.join(",")}'
+      WHERE id = '${id}'
+    `;
+  }
+
+  return `
+    UPDATE users SET 
+    name = '${name}', 
+    email = '${email}'
+    WHERE id = '${id}'
+  `;
+};
+
+const getAllUsers = async () => {
   try {
-    const result = await pool.query("SELECT * FROM users");
+    const result = await pool.query(
+      "SELECT id, name, email, category_id, created_at, updated_at FROM users"
+    );
     return result.rows;
   } catch (error) {
     throw error;
@@ -12,7 +55,7 @@ const getUsers = async () => {
 const getUsersByEmail = async (email) => {
   try {
     const result = await pool.query(
-      `SELECT name, email, category_id, created_at, updated_at FROM users WHERE email = '${email}'`
+      `SELECT * FROM users WHERE email = '${email}'`
     );
 
     return result.rows;
@@ -23,34 +66,30 @@ const getUsersByEmail = async (email) => {
 
 const getUserById = async (id) => {
   try {
-    const result = await pool.query(`SELECT * FROM users WHERE id = '${id}'`);
+    const result = await pool.query(
+      `SELECT id, name, email, created_at, updated_at FROM users WHERE id = '${id}'`
+    );
     return result.rows[0];
   } catch (error) {
     throw error;
   }
 };
 
-const createUser = async (name, email, password, category_id) => {
+const createUser = async (fields) => {
   try {
-    const result = await pool.query(`
-    INSERT INTO users 
-    (name, email, password, category_id) VALUES 
-    (${name}, ${email}, ${password}, ${category_id});`);
+    const query = await createUsersDto(fields);
+
+    const result = await pool.query(query);
     return result.rows[0];
   } catch (error) {
     throw error;
   }
 };
 
-const updateUser = async (id, name, email, category_id) => {
+const updateUser = async (id, fields) => {
   try {
-    const result = await pool.query(`
-      UPDATE users SET 
-      name = ${name}, 
-      email = ${email}, 
-      category_id = ${category_id} 
-      WHERE id = ${id}
-    `);
+    const query = updateUsersDto({ id, ...fields });
+    const result = await pool.query(query);
     return result.rows[0];
   } catch (error) {
     throw error;
@@ -59,14 +98,14 @@ const updateUser = async (id, name, email, category_id) => {
 
 const deleteUser = async (id) => {
   try {
-    await pool.query(`DELETE FROM users WHERE id = ${id}`);
+    await pool.query(`DELETE FROM users WHERE id = '${id}'`);
   } catch (error) {
     throw error;
   }
 };
 
 module.exports = {
-  getUsers,
+  getAllUsers,
   getUserById,
   createUser,
   updateUser,
