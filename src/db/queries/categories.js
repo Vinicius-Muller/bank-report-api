@@ -1,12 +1,12 @@
 const pool = require("../index");
 
 const createCategoriesDto = (fields) => {
-  const { title, color } = fields;
+  const { title, color, user_id } = fields;
 
   return `
     INSERT INTO categories 
-    (title, color) VALUES 
-    ('${title}', '${color}')
+    (title, color, user_id) VALUES 
+    ('${title}', '${color}', '${user_id}')
   `;
 };
 
@@ -14,17 +14,19 @@ const updateCategoriesDto = (fields) => {
   const { id, title, color } = fields;
 
   return `
-    INSERT INTO categories 
-    (title, color) VALUES 
-    ('${title}', '${color}')
+    UPDATE categories SET 
+    title = '${title}',
+    color = '${color}'
     WHERE id = '${id}'
   `;
 };
 
-const getAllCategories = async () => {
+const getAllCategories = async (id) => {
   try {
     const result = await pool.query(
-      "SELECT id, title, color, created_at, updated_at FROM categories"
+      `
+        SELECT * FROM categories WHERE user_id = '${id}';
+      `
     );
     return result.rows;
   } catch (error) {

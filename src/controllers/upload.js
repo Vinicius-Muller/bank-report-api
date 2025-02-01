@@ -12,11 +12,11 @@ const getData = async (req, res) => {
     const transactions =
       parsedData.OFX.BANKMSGSRSV1.STMTTRNRS.STMTRS.BANKTRANLIST.STMTTRN;
 
-    const { income, outcome } = categorizeTransactions(transactions);
+    const { income, expense } = categorizeTransactions(transactions);
 
     res.status(200).json({
       income,
-      outcome,
+      expense,
     });
   } catch (error) {
     console.error("Erro ao processar o arquivo OFX:", error);
@@ -26,7 +26,7 @@ const getData = async (req, res) => {
 
 const categorizeTransactions = (transactions) => {
   const income = [];
-  const outcome = [];
+  const expense = [];
 
   transactions.forEach((transaction) => {
     const value = parseFloat(transaction.TRNAMT);
@@ -39,11 +39,11 @@ const categorizeTransactions = (transactions) => {
     if (value >= 0) {
       income.push(category);
     } else {
-      outcome.push(category);
+      expense.push(category);
     }
   });
 
-  return { income, outcome };
+  return { income, expense };
 };
 
 module.exports = {

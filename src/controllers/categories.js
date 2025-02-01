@@ -17,7 +17,13 @@ const createCategories = async (req, res) => {
 
 const getCategories = async (req, res) => {
   try {
-    const categories = await getAllCategories();
+    const { user_id } = req.params;
+    if (!user_id) {
+      res.status(422).json({ message: "user_id é obrigatório para consulta" });
+      return;
+    }
+
+    const categories = await getAllCategories(user_id);
     res.status(200).json(categories);
   } catch (error) {
     res.status(500).json({ message: error });

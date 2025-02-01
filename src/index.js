@@ -5,6 +5,7 @@ const uploadRoute = require("./routes/upload.js");
 const usersRoute = require("./routes/users.js");
 const signInRoute = require("./routes/signIn.js");
 const categoriesRoute = require("./routes/categories.js");
+const movimentsRoute = require("./routes/moviments.js");
 const jwtValidation = require("./middlewares/jwtValidation.js");
 
 dotenv.config();
@@ -19,6 +20,7 @@ app.use(morgan("dev"));
 app.use("/api/upload", jwtValidation, uploadRoute);
 app.use("/api/users", usersRoute);
 app.use("/api/categories", jwtValidation, categoriesRoute);
+app.use("/api/moviments", jwtValidation, movimentsRoute);
 app.use("/api/signIn", signInRoute);
 
 module.exports = app;

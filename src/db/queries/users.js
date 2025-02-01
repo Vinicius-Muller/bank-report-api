@@ -2,16 +2,8 @@ const { encryptPassword } = require("../../helpers/encription");
 const pool = require("../index");
 
 const createUsersDto = async (fields) => {
-  const { name, email, password, categories } = fields;
+  const { name, email, password } = fields;
   const hashPassword = await encryptPassword(password);
-
-  if (categories) {
-    return `
-      INSERT INTO users 
-      (name, email, password) VALUES 
-      ('${name}', '${email}', '${hashPassword}', '${categories.join(",")}')
-    `;
-  }
 
   return `
     INSERT INTO users 
@@ -20,18 +12,8 @@ const createUsersDto = async (fields) => {
   `;
 };
 
-const updateUsersDto = (fields) => {
-  const { id, name, email, categories } = fields;
-
-  if (categories) {
-    return `
-      UPDATE users SET 
-      name = '${name}', 
-      email = '${email}', 
-      category_id = '${categories.join(",")}'
-      WHERE id = '${id}'
-    `;
-  }
+const updateUsersDto = async (fields) => {
+  const { id, name, email } = fields;
 
   return `
     UPDATE users SET 
@@ -44,7 +26,24 @@ const updateUsersDto = (fields) => {
 const getAllUsers = async () => {
   try {
     const result = await pool.query(
-      "SELECT id, name, email, category_id, created_at, updated_at FROM users"
+      `
+        SELECT 
+          U.id, 
+          U.name, 
+          U.email, 
+          U.updated_at, 
+          U.created_at, 
+
+          C.id AS category_id,
+          C.title AS category_title,
+          C.color AS category_color,
+          C.updated_at AS category_updated_at,
+          C.created_at AS category_created_at
+        FROM 
+          users AS U
+        LEFT JOIN 
+          categories AS C ON C.user_id = U.id;
+      `
     );
     return result.rows;
   } catch (error) {
@@ -104,6 +103,20 @@ const deleteUser = async (id) => {
   }
 };
 
+const resetUsersPassword = async (id, password) => {
+  const hashPassword = await encryptPassword(password);
+
+  try {
+    await pool.query(`
+      UPDATE users SET 
+      password = '${hashPassword}'
+      WHERE id = '${id}'
+    `);
+  } catch (error) {
+    throw error;
+  }
+};
+
 module.exports = {
   getAllUsers,
   getUserById,
@@ -111,4 +124,5 @@ module.exports = {
   updateUser,
   deleteUser,
   getUsersByEmail,
+  resetUsersPassword,
 };
