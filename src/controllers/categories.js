@@ -24,7 +24,7 @@ const getCategories = async (req, res) => {
     }
 
     const categories = await getAllCategories(user_id);
-    res.status(200).json(categories);
+    return categories;
   } catch (error) {
     res.status(500).json({ message: error });
   }
@@ -34,7 +34,7 @@ const getSingleCategory = async (req, res) => {
   try {
     const { id } = req.params;
     const category = await getCategoryById(id);
-    res.status(200).json(category);
+    return category;
   } catch (error) {
     res.status(500).json({ message: error });
   }

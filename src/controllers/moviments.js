@@ -15,11 +15,61 @@ const createMoviments = async (req, res) => {
   }
 };
 
+const groupMovements = (movements) => {
+  if (!movements.length) return [];
+
+  return movements.map((movement) => {
+    const {
+      id: movement_id,
+      description,
+      amount,
+      date,
+      type,
+      created_at,
+      updated_at,
+      category_id,
+      category_title,
+      category_color,
+      category_created_at,
+      category_updated_at,
+      user_id,
+      user_name,
+      user_email,
+      user_created_at,
+      user_updated_at,
+    } = movement;
+
+    return {
+      movement_id,
+      description,
+      amount,
+      date,
+      type,
+      created_at,
+      updated_at,
+      category: {
+        category_id,
+        category_title,
+        category_color,
+        category_created_at,
+        category_updated_at,
+      },
+      user: {
+        user_id,
+        user_name,
+        user_email,
+        user_created_at,
+        user_updated_at,
+      },
+    };
+  });
+};
+
 const getMoviments = async (req, res) => {
   try {
     const moviments = await getAllMoviments();
 
-    res.status(200).json(moviments);
+    return groupMovements(moviments);
   } catch (error) {
     res.status(500).json({ message: error });
   }
@@ -29,7 +79,8 @@ const getSingleMoviments = async (req, res) => {
   try {
     const { id } = req.params;
     const moviment = await getMovimentById(id);
-    res.status(200).json(moviment);
+
+    return groupMovements(moviment);
   } catch (error) {
     res.status(500).json({ message: error });
   }

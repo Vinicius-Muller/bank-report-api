@@ -66,9 +66,27 @@ const getUsersByEmail = async (email) => {
 const getUserById = async (id) => {
   try {
     const result = await pool.query(
-      `SELECT id, name, email, created_at, updated_at FROM users WHERE id = '${id}'`
+      `
+       SELECT 
+          U.id, 
+          U.name, 
+          U.email, 
+          U.updated_at, 
+          U.created_at, 
+
+          C.id AS category_id,
+          C.title AS category_title,
+          C.color AS category_color,
+          C.updated_at AS category_updated_at,
+          C.created_at AS category_created_at
+        FROM 
+          users AS U
+        LEFT JOIN 
+          categories AS C ON C.user_id = U.id
+        WHERE U.id = '${id}';
+      `
     );
-    return result.rows[0];
+    return result.rows;
   } catch (error) {
     throw error;
   }

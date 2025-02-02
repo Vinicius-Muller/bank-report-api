@@ -70,8 +70,8 @@ const getUsers = async (req, res) => {
 const getSingleUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await getUserById(id);
-    res.status(200).json(user);
+    const users = await getUserById(id);
+    res.status(200).json(groupUsers(users)[0]);
   } catch (error) {
     res.status(500).json({ message: error });
   }

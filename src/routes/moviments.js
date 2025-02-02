@@ -8,9 +8,11 @@ const {
 } = require("../controllers/moviments.js");
 const router = express.Router();
 
+const cacheControl = require("../middlewares/cacheControl");
+
 router.post("/", createMoviments);
-router.get("/", getMoviments);
-router.get("/:id", getSingleMoviments);
+router.get("/", cacheControl(getMoviments));
+router.get("/:id", cacheControl(getSingleMoviments));
 router.delete("/:id", deleteMoviments);
 router.put("/:id", updateMoviments);
 
