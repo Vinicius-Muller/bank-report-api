@@ -17,7 +17,7 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
 
-app.use("/api/upload", jwtValidation, uploadRoute);
+app.use("/api/upload", uploadRoute);
 app.use("/api/users", usersRoute);
 app.use("/api/categories", jwtValidation, categoriesRoute);
 app.use("/api/moviments", jwtValidation, movimentsRoute);

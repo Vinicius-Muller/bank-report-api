@@ -34,6 +34,7 @@ const signIn = async (req, res) => {
 
     res.status(200).json({
       ...signedUser,
+      password: undefined,
       access_token: accessToken,
     });
   } catch (error) {
