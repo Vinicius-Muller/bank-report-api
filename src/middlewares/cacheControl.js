@@ -7,27 +7,22 @@ function cacheControl(fetchFunction) {
     const key = req.originalUrl;
     const cachedData = cache.get(key);
 
-    if (cachedData) {
-      res.setHeader("X-Cache", "HIT");
-      res.json(cachedData);
-
-      setImmediate(async () => {
-        try {
-          const freshData = await fetchFunction(req, res);
-          cache.set(key, freshData);
-        } catch (err) {
-          console.error(err);
+    try {
+      const freshData = await fetchFunction(req, res);
+      
+      if (cachedData) {
+        if (JSON.stringify(cachedData) === JSON.stringify(freshData)) {
+          res.setHeader("X-Cache", "HIT");
+          return res.json(cachedData);
         }
-      });
-    } else {
-      res.setHeader("X-Cache", "MISS");
-      try {
-        const freshData = await fetchFunction(req, res);
-        cache.set(key, freshData);
-        res.json(freshData);
-      } catch (err) {
-        next(err);
       }
+      
+      res.setHeader("X-Cache", "MISS");
+      cache.set(key, freshData);
+      return res.json(freshData);
+
+    } catch (err) {
+      next(err);
     }
   };
 }

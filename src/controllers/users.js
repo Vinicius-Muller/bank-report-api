@@ -71,6 +71,7 @@ const getSingleUser = async (req, res) => {
   try {
     const { id } = req.params;
     const users = await getUserById(id);
+
     res.status(200).json(groupUsers(users)[0]);
   } catch (error) {
     res.status(500).json({ message: error });
@@ -92,6 +93,7 @@ const updateUsers = async (req, res) => {
     const { id } = req.params;
     const updatedData = req.body;
     const updatedUser = await updateUser(id, updatedData);
+
     res.status(200).json(updatedUser);
   } catch (error) {
     res.status(500).json({ message: error });

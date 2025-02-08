@@ -10,14 +10,15 @@ const createCategoriesDto = (fields) => {
   `;
 };
 
-const updateCategoriesDto = (fields) => {
-  const { id, title, color } = fields;
+const updateCategoriesDto = (id, fields) => {
+  const { title, color, user_id } = fields;
 
   return `
     UPDATE categories SET 
     title = '${title}',
-    color = '${color}'
-    WHERE id = '${id}'
+    color = '${color}',
+    user_id = '${user_id}'
+    WHERE id = '${id}';
   `;
 };
 
@@ -58,8 +59,9 @@ const createCategory = async (fields) => {
 
 const updateCategory = async (id, fields) => {
   try {
-    const query = updateCategoriesDto({ id, ...fields });
+    const query = updateCategoriesDto( id, fields );
     const result = await pool.query(query);
+
     return result.rows[0];
   } catch (error) {
     throw error;

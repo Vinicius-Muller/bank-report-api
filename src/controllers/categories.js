@@ -55,6 +55,7 @@ const updateCategories = async (req, res) => {
     const { id } = req.params;
     const updatedData = req.body;
     const updatedCategory = await updateCategory(id, updatedData);
+    
     res.status(200).json(updatedCategory);
   } catch (error) {
     res.status(500).json({ message: error });

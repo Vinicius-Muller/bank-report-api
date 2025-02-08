@@ -4,6 +4,7 @@ const {
   createMoviment,
   deleteMoviment,
   updateMoviment,
+  getTotalBalance,
 } = require("../db/queries/moviments.js");
 
 const createMoviments = async (req, res) => {
@@ -20,7 +21,7 @@ const groupMovements = (movements) => {
 
   return movements.map((movement) => {
     const {
-      id: movement_id,
+      id: id,
       description,
       amount,
       date,
@@ -40,7 +41,7 @@ const groupMovements = (movements) => {
     } = movement;
 
     return {
-      movement_id,
+      id,
       description,
       amount,
       date,
@@ -67,9 +68,21 @@ const groupMovements = (movements) => {
 
 const getMoviments = async (req, res) => {
   try {
-    const moviments = await getAllMoviments();
+    const { date } = req.query;
+    const moviments = await getAllMoviments(date);
 
     return groupMovements(moviments);
+  } catch (error) {
+    res.status(500).json({ message: error });
+  }
+};
+
+const getBalance = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const moviments = await getTotalBalance(id);
+
+    return moviments;
   } catch (error) {
     res.status(500).json({ message: error });
   }
@@ -101,6 +114,7 @@ const updateMoviments = async (req, res) => {
     const { id } = req.params;
     const updatedData = req.body;
     const updatedMoviment = await updateMoviment(id, updatedData);
+    
     res.status(200).json(updatedMoviment);
   } catch (error) {
     res.status(500).json({ message: error });
@@ -113,4 +127,5 @@ module.exports = {
   getSingleMoviments,
   updateMoviments,
   deleteMoviments,
+  getBalance
 };

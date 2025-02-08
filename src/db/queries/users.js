@@ -12,14 +12,14 @@ const createUsersDto = async (fields) => {
   `;
 };
 
-const updateUsersDto = async (fields) => {
-  const { id, name, email } = fields;
+const updateUsersDto = (id, fields) => {
+  const { name, email } = fields;
 
   return `
     UPDATE users SET 
     name = '${name}', 
     email = '${email}'
-    WHERE id = '${id}'
+    WHERE id = '${id}';
   `;
 };
 
@@ -105,8 +105,9 @@ const createUser = async (fields) => {
 
 const updateUser = async (id, fields) => {
   try {
-    const query = updateUsersDto({ id, ...fields });
+    const query = updateUsersDto(id, fields);
     const result = await pool.query(query);
+
     return result.rows[0];
   } catch (error) {
     throw error;
